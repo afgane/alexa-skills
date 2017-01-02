@@ -1,0 +1,7 @@
+{
+    "dev": {
+        "app_function": "main.app", 
+        "s3_bucket": "galaxy-skill-lambda"
+        "profile_name": "alexaSkillPrivate"
+    }
+}
