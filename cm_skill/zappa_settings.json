@@ -1,0 +1,6 @@
+{
+    "dev": {
+        "app_function": "cloud_launcher.app", 
+        "s3_bucket": "cloud-galaxy-skill"
+    }
+}
