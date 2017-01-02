@@ -1,0 +1,6 @@
+*.pyc
+*.DS_Store
+
+.alexa/
+cm_skill/.cms/
+galaxy_skill/.gs/
