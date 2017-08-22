@@ -1,0 +1,20 @@
+welcome: |
+  Welcome to Wind Checker. For which bouy would you like wind info?
+
+no_match: |
+  Sorry, I don't recognize {{ station }}. What bouy would you like to check?
+  Or say help.
+
+help: |
+  I can give you the latest wind information for a select number of coastal
+  bouys, just ask a question like, check wind for Baltimore. For a list of
+  bouys, ask what bouys are supported. For which bouy would you like wind info?
+
+list_stations: |
+  Currently, I know wind information for these bouys: {{ stations }}
+  For which bouy would you like wind info?
+
+list_stations_reprompt: |
+  For which bouy would you like wind info?
+
+bye: Hope you're going sailing. Cheers!
