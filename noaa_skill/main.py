@@ -10,14 +10,18 @@ from flask_ask import Ask, statement, question
 
 
 app = Flask(__name__)
-ask = Ask(app, '/wind-checker')
+ask = Ask(app, '/peak-wind')
 
 STATION_MAP = {
     'baltimore': '8574680',
-    'scott key bridge': '8574728',
-    'tolchester beach': '8573364',
+    'bishops head': '8571421',
+    'cape may': '8536110',
     'kiptopeke': '8632200',
-    'solomons island': '8577330 '
+    'lewes': '8557380',
+    'ocean city': '8570283',
+    'scott key bridge': '8574728',
+    'solomons island': '8577330',
+    'tolchester': '8573364'
 }
 
 
@@ -34,6 +38,9 @@ def get_wind_data(station):
              ``g`` - gust speed, in knots
              ``s`` - wind speed, in knots
              ``t`` - time stamp (e.g., 2017-08-19 14:12)
+
+             If there is an error fetching or interepreting the data, return
+             an empty dict.
     """
     date = time.strftime("%Y%m%d")
     url = "https://tidesandcurrents.noaa.gov/api/datagetter"
@@ -44,8 +51,11 @@ def get_wind_data(station):
               'time_zone': 'LST_LDT',
               'units': 'english',
               'format': 'json'}
-    r = requests.get(url, params=params)
-    return r.json().get('data')[-30:]  # Most recent 3 hrs
+    try:
+        r = requests.get(url, params=params)
+        return r.json().get('data')[-10:]  # Most recent 1 hr
+    except Exception:
+        return {}
 
 
 def process_wind_data(wind_data):
@@ -70,7 +80,13 @@ def process_wind_data(wind_data):
              ``latest_speed`` - Most recent wind speed reading, in knots
              ``latest_gust`` - Most recent gust speed reading, in knots
              ``latest_direction`` - Most recent wind speed direction
+
+             If empty data is received as the `wind_data` param, return an
+             empty dict.
     """
+    if not wind_data:
+        return {}
+
     directions, gusts, speeds = [], [], []
     for w in wind_data:
         directions.append(float(w['d']))
@@ -100,7 +116,7 @@ def process_wind_data(wind_data):
             'latest_direction': latest['dr']}
 
 
-def _humanize(direction):
+def _humanize_direction(direction):
     """Convert wind direction representaion such as 'N' into 'north'."""
     if direction == 'N':
         return 'north'
@@ -154,10 +170,14 @@ def run_skill(station):
     if station.lower() not in STATION_MAP:
         no_match_text = render_template('no_match', station=station)
         return question(no_match_text)
+
     wind_data = process_wind_data(get_wind_data(station))
-    location = station
+    if not wind_data:
+        err_text = render_template('err_msg', station=station)
+        return statement(err_text)
+
     timestamp = wind_data['latest_timestamp'][-5:]
-    direction = _humanize(wind_data['latest_direction'])
+    direction = _humanize_direction(wind_data['latest_direction'])
     speed = wind_data['latest_speed']
     gust = wind_data['latest_gust']
     ntrend = wind_data['speed_trend'].item(0)
@@ -167,11 +187,11 @@ def run_skill(station):
         trend = 'decreasing'
     else:
         trend = 'increasing'
-    wind_msg = ("%s at %s shows wind blowing from %s at %s knots, "
-                "gusting to %s, generally %s." % (location, timestamp,
-                                                  direction, speed,
-                                                  gust, trend))
-    return statement(wind_msg)
+
+    wind_msg_text = render_template('wind_msg', station=station,
+                                    timestamp=timestamp, direction=direction,
+                                    speed=speed, gust=gust, trend=trend)
+    return statement(wind_msg_text)
     # return statement(wind_msg).simple_card(
     #     title=wind_msg,
     #     content=_get_card_content(wind_data))
@@ -198,4 +218,3 @@ def cancel():
 
 if __name__ == '__main__':
     app.run(debug=True)
-    # pass

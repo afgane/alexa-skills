@@ -1,9 +1,13 @@
 welcome: |
   Welcome to Wind Checker. For which bouy would you like wind info?
 
+wind_msg: |
+  {{ station }} at {{ timestamp }} shows wind blowing from {{ direction }} at
+  {{ speed }} knots, gusting to {{ gust }}, generally {{ trend }}.
+
 no_match: |
   Sorry, I don't recognize {{ station }}. What bouy would you like to check?
-  Or say help.
+  Say check Baltimore or say help.
 
 help: |
   I can give you the latest wind information for a select number of coastal
@@ -17,4 +21,7 @@ list_stations: |
 list_stations_reprompt: |
   For which bouy would you like wind info?
 
-bye: Hope you're going sailing. Cheers!
+err_msg: |
+  Sorry, I was not able to get any data for bouy {{ station }}.
+
+bye: Happy sailing. Cheers!
